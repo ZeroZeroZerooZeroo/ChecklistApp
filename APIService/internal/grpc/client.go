@@ -64,3 +64,12 @@ func (c *GRPCClient) DeleteTask(ctx context.Context, id int32) error {
 	_, err := c.client.DeleteTask(ctx, req)
 	return err
 }
+
+// UpdateTaskStatus отправляет запрос на обновление стутуса задачи
+func (c *GRPCClient) UpdateTaskStatus(ctx context.Context, id int32) (*pb.TaskResponse, error) {
+	req := &pb.UpdateTaskStatusRequest{
+		Id: id,
+	}
+
+	return c.client.UpdateTaskStatus(ctx, req)
+}
