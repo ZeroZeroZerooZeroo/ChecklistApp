@@ -74,3 +74,25 @@ func (r *Repository) GetAllTasks() ([]*models.Task, error) {
 
 	return tasks, nil
 }
+
+func (r *Repository) DeleteTask(id int32) error {
+	query := `DELETE FROM tasks WHERE id=$1`
+
+	result, err := r.db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete task: %w", err)
+
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("task with id %d not found", id)
+	}
+
+	return nil
+}
+
+
