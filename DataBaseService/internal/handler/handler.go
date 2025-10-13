@@ -9,6 +9,7 @@ import (
 	pb "github.com/ZeroZeroZerooZeroo/ChecklistApp/proto/checklist/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,6 +37,20 @@ func (h *GRPCHandler) CreateTask(ctx context.Context, req *pb.CreateTaskRequest)
 	log.Printf("Task created with ID:%d", task.ID)
 	return h.taskToProto(task), nil
 
+}
+
+func (h *GRPCHandler) GetTasks(ctx context.Context, req *emptypb.Empty) (*pb.TaskListResponse, error) {
+
+	log.Printf("Getting all tasks")
+
+	tasks, err := h.taskService.GetAllTasks()
+	if err != nil {
+		log.Printf("Failed to get tasks: %v", err)
+		return nil, status.Error(codes.Internal, "failed to get tasks")
+	}
+
+	log.Printf("Returning %d tasks", len(tasks))
+	return h.tasksToProto(tasks), nil
 }
 
 func (h *GRPCHandler) taskToProto(task *models.Task) *pb.TaskResponse {
