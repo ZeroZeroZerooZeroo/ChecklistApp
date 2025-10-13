@@ -48,4 +48,6 @@ func (c *GRPCClient) CreateTask(ctx context.Context, title, description string) 
 	return c.client.CreateTask(ctx, req)
 }
 
-
+func (c *GRPCClient) GetTasks(ctx context.Context) (*pb.TaskListResponse, error) {
+	return c.client.GetTasks(ctx, &emptypb.Empty{})
+}
