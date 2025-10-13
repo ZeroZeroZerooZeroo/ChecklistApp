@@ -322,8 +322,8 @@ const file_checklist_proto_rawDesc = "" +
 	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"Z\n" +
 	"\x10TaskListResponse\x120\n" +
 	"\x05tasks\x18\x01 \x03(\v2\x1a.checklist.v1.TaskResponseR\x05tasks\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x05R\x05count2\xc8\x02\n" +
-	"\x11ChaeckListService\x12K\n" +
+	"\x05count\x18\x02 \x01(\x05R\x05count2\xc7\x02\n" +
+	"\x10CheckListService\x12K\n" +
 	"\n" +
 	"CreateTask\x12\x1f.checklist.v1.CreateTaskRequest\x1a\x1a.checklist.v1.TaskResponse\"\x00\x12D\n" +
 	"\bGetTasks\x12\x16.google.protobuf.Empty\x1a\x1e.checklist.v1.TaskListResponse\"\x00\x12G\n" +
@@ -357,14 +357,14 @@ var file_checklist_proto_depIdxs = []int32{
 	5, // 0: checklist.v1.TaskResponse.created_at:type_name -> google.protobuf.Timestamp
 	5, // 1: checklist.v1.TaskResponse.updated_at:type_name -> google.protobuf.Timestamp
 	3, // 2: checklist.v1.TaskListResponse.tasks:type_name -> checklist.v1.TaskResponse
-	0, // 3: checklist.v1.ChaeckListService.CreateTask:input_type -> checklist.v1.CreateTaskRequest
-	6, // 4: checklist.v1.ChaeckListService.GetTasks:input_type -> google.protobuf.Empty
-	1, // 5: checklist.v1.ChaeckListService.DeleteTask:input_type -> checklist.v1.DeleteTaskRequest
-	2, // 6: checklist.v1.ChaeckListService.UpdateTaskStatus:input_type -> checklist.v1.UpdateTaskStatusRequest
-	3, // 7: checklist.v1.ChaeckListService.CreateTask:output_type -> checklist.v1.TaskResponse
-	4, // 8: checklist.v1.ChaeckListService.GetTasks:output_type -> checklist.v1.TaskListResponse
-	6, // 9: checklist.v1.ChaeckListService.DeleteTask:output_type -> google.protobuf.Empty
-	3, // 10: checklist.v1.ChaeckListService.UpdateTaskStatus:output_type -> checklist.v1.TaskResponse
+	0, // 3: checklist.v1.CheckListService.CreateTask:input_type -> checklist.v1.CreateTaskRequest
+	6, // 4: checklist.v1.CheckListService.GetTasks:input_type -> google.protobuf.Empty
+	1, // 5: checklist.v1.CheckListService.DeleteTask:input_type -> checklist.v1.DeleteTaskRequest
+	2, // 6: checklist.v1.CheckListService.UpdateTaskStatus:input_type -> checklist.v1.UpdateTaskStatusRequest
+	3, // 7: checklist.v1.CheckListService.CreateTask:output_type -> checklist.v1.TaskResponse
+	4, // 8: checklist.v1.CheckListService.GetTasks:output_type -> checklist.v1.TaskListResponse
+	6, // 9: checklist.v1.CheckListService.DeleteTask:output_type -> google.protobuf.Empty
+	3, // 10: checklist.v1.CheckListService.UpdateTaskStatus:output_type -> checklist.v1.TaskResponse
 	7, // [7:11] is the sub-list for method output_type
 	3, // [3:7] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
