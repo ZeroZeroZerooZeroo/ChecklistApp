@@ -95,4 +95,26 @@ func (r *Repository) DeleteTask(id int32) error {
 	return nil
 }
 
+func (r *Repository) UpdateTaskStatus(id int32) (*models.Task, error) {
+	query := `UPDATE tasks SET is_completed = true, updated_at = $1
+	WHERE id = $2 RETURNING id, title, description, is_completed, created_at, updated_at`
 
+	var task models.Task
+	err := r.db.QueryRow(query, time.Now(), id).Scan(
+		&task.ID,
+		&task.Title,
+		&task.Description,
+		&task.IsCompleted,
+		&task.CreatedAt,
+		&task.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("task with id %d not found", id)
+		}
+		return nil, fmt.Errorf("failed to update task: %w", err)
+	}
+
+	return &task, nil
+}
