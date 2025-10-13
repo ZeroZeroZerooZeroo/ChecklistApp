@@ -1,33 +1,29 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/ZeroZeroZerooZeroo/ChecklistApp/apiservice/internal/grpc"
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/apiservice/internal/models"
 )
 
 type Handlers struct {
-	taskList *models.TaskListResponse
+	grpcClient *grpc.GRPCClient
 }
 
-func NewHandler() *Handlers {
-	return &Handlers{taskList: &models.TaskListResponse{
-		Tasks: []models.TaskResponse{},
-		Count: 0,
-	}}
+func NewHandler(grpcClient *grpc.GRPCClient) *Handlers {
+	return &Handlers{
+		grpcClient: grpcClient,
+	}
 }
 
 func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
 
-	// проверка на метод
-	// if r.Method != "POST" {
-	// 	json.NewEncoder(w).Encode("The HTTP method is specified incorrectly")
-	// 	return
-	// }
-
-	var task models.TaskResponse // изменить на CreateTaskResponse
+	var task models.CreateTaskRequest
 
 	// парсим запрос на создание
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
@@ -45,36 +41,71 @@ func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.taskList.Tasks = append(h.taskList.Tasks, task)
-	h.taskList.Count++
+	// Создание контекста с таймаутом
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
-	// временный ответ на успешную отправуц
+	// Отправка запроса на gRPC сервер
+	resp, err := h.grpcClient.CreateTask(ctx, task.Title, task.Description)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to create task: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// КОнвертация gRPC запроса
+	taskResponse := models.TaskResponse{
+		ID:          int(resp.Id),
+		Title:       resp.Title,
+		Description: resp.Description,
+		IsCompleted: resp.IsCompleted,
+		CreatedAt:   resp.CreatedAt.AsTime(),
+		UpdatedAt:   resp.UpdatedAt.AsTime(),
+	}
+
+	// ответ на успешную отправуц
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&task)
+	json.NewEncoder(w).Encode(&taskResponse)
 	fmt.Println("Request was received successfully!")
 
 }
 
 func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 
-	// проверка на метод
-	// if r.Method != "GET" {
-	// 	json.NewEncoder(w).Encode("The HTTP method is specified incorrectly")
-	// 	return
-	// }
+	// Создание контекста с таймаутом
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	resp, err := h.grpcClient.GetTasks(ctx)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get tasks: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// КОнвертация gRPC запроса
+	tasks := make([]models.TaskResponse, 0, len(resp.Tasks))
+	for _, task := range resp.Tasks {
+		tasks = append(tasks, models.TaskResponse{
+			ID:          int(task.Id),
+			Title:       task.Title,
+			Description: task.Description,
+			IsCompleted: task.IsCompleted,
+			CreatedAt:   task.CreatedAt.AsTime(),
+			UpdatedAt:   task.UpdatedAt.AsTime(),
+		})
+	}
+
+	taskListResponse := models.TaskListResponse{
+		Tasks: tasks,
+		Count: int(resp.Count),
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(h.taskList)
+	json.NewEncoder(w).Encode(taskListResponse)
 
 }
 
 func (h *Handlers) DeleteTask(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Method: %s, URL: %s\n", r.Method, r.URL.Path)
-	// проверка на метод
-	// if r.Method != "DELETE" {
-	// 	json.NewEncoder(w).Encode("The HTTP method is specified incorrectly")
-	// 	return
-	// }
 
 	var task models.DeleteTaskRequest
 
@@ -90,20 +121,29 @@ func (h *Handlers) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Создание контекста с таймаутом
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	// Отправка запроса на gRPC сервер
+	err := h.grpcClient.DeleteTask(ctx, int32(task.ID))
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to delete task: %v", err), http.StatusInternalServerError)
+		return
+	}
+
 	// временный ответ на успешную отправуц
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&task)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Task deleted successfully",
+		"id":      task.ID,
+	})
 	fmt.Println("Request was received successfully!")
 
 }
 
 func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
-
-	// проверка на метод
-	// if r.Method != "PUT" {
-	// 	json.NewEncoder(w).Encode("The HTTP method is specified incorrectly")
-	// 	return
-	// }
 
 	var task models.UpdateTaskStatusRequest
 
@@ -119,9 +159,32 @@ func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Создание контекста с таймаутом
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	// Отправка запроса на gRPC сервер
+	resp, err := h.grpcClient.UpdateTaskStatus(ctx, int32(task.ID))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to update task: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// КОнвертация gRPC запроса
+	taskResponse := models.TaskResponse{
+		ID:          int(resp.Id),
+		Title:       resp.Title,
+		Description: resp.Description,
+		IsCompleted: resp.IsCompleted,
+		CreatedAt:   resp.CreatedAt.AsTime(),
+		UpdatedAt:   resp.UpdatedAt.AsTime(),
+	}
+
+
+
 	// временный ответ на успешную отправуц
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&task)
+	json.NewEncoder(w).Encode(&taskResponse)
 	fmt.Println("Request was received successfully!")
 
 }
