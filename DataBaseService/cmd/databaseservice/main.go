@@ -14,11 +14,10 @@ import (
 )
 
 func main() {
-
 	cfg := config.LoadConfig()
 
-	db, err := database.NewDatabase(cfg.DatabaseURL)
-
+	
+	db, err := database.NewDatabase(cfg.Database.GetDBConnectionString())
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -28,7 +27,8 @@ func main() {
 		db.Close()
 	}()
 
-	if err := database.RunMigrations(cfg.DatabaseURL); err != nil {
+	
+	if err := database.RunMigrations(cfg.Database.GetMigrationConnectionString()); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 
@@ -45,9 +45,9 @@ func main() {
 	}
 
 	log.Printf("DataBaseService (gRPC server) started on port %s", cfg.GRPCPort)
-	log.Printf("Database: %s", cfg.DatabaseURL)
+	log.Printf("Database: %s", cfg.Database.GetDBConnectionString())
 
-	 if err := grpcServer.Serve(lis); err != nil {
-        log.Fatalf("Failed to serve: %v", err)
-    }
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }

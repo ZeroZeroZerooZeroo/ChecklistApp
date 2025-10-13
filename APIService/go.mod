@@ -9,9 +9,12 @@ require (
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
 )
 
-require github.com/ZeroZeroZerooZeroo/ChecklistApp/proto v0.0.0
+require (
+	github.com/ZeroZeroZerooZeroo/ChecklistApp/proto v0.0.0
+	github.com/joho/godotenv v1.5.1
+	google.golang.org/protobuf v1.36.10
+)
 
 replace github.com/ZeroZeroZerooZeroo/ChecklistApp/proto => ../proto
