@@ -53,6 +53,33 @@ func (h *GRPCHandler) GetTasks(ctx context.Context, req *emptypb.Empty) (*pb.Tas
 	return h.tasksToProto(tasks), nil
 }
 
+func (h *GRPCHandler) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*emptypb.Empty, error) {
+	log.Printf("Deleting task with ID: %d", req.Id)
+
+	err := h.taskService.DeleteTask(req.Id)
+
+	if err != nil {
+		log.Printf("Failed to delete task: %v", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	log.Printf("Task deleted with ID: %d", req.Id)
+	return &emptypb.Empty{}, nil
+}
+
+func (h *GRPCHandler) UpdateTaskStatus(ctx context.Context, req *pb.UpdateTaskStatusRequest) (*pb.TaskResponse, error) {
+	log.Printf("Updating task status for ID: %d", req.Id)
+
+	task, err := h.taskService.UpdateTaskStatus(req.Id)
+	if err != nil {
+		log.Printf("Failed to update task: %v", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	log.Printf("Task updated with ID: %d", task.ID)
+	return h.taskToProto(task), nil
+}
+
 func (h *GRPCHandler) taskToProto(task *models.Task) *pb.TaskResponse {
 	return &pb.TaskResponse{
 		Id:          int32(task.ID),
