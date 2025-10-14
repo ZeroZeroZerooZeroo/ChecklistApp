@@ -5,6 +5,8 @@ go 1.25.1
 require (
 	github.com/IBM/sarama v1.46.2
 	github.com/joho/godotenv v1.5.1
+	github.com/sirupsen/logrus v1.9.3
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
@@ -24,4 +26,5 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	golang.org/x/crypto v0.43.0 // indirect
 	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 )
