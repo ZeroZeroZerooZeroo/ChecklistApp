@@ -3,7 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/ZeroZeroZerooZeroo/ChecklistApp/proto/checklist/pb"
+	"github.com/ZeroZeroZerooZeroo/ChecklistApp/apiservice/proto/checklist/pb"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/emptypb"

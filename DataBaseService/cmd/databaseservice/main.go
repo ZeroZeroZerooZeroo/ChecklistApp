@@ -9,7 +9,7 @@ import (
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/internal/repository"
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/internal/service"
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/pkg/database"
-	"github.com/ZeroZeroZerooZeroo/ChecklistApp/proto/checklist/pb"
+	"github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/proto/checklist/pb"
 	"google.golang.org/grpc"
 )
 

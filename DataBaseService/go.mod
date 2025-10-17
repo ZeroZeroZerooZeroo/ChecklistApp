@@ -19,11 +19,9 @@ require (
 )
 
 require (
-	github.com/ZeroZeroZerooZeroo/ChecklistApp/proto v0.0.0
+	github.com/ZeroZeroZerooZeroo/ChecklistApp/proto v0.0.0-20251017140526-6da958d3a933
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.14.0
 	google.golang.org/grpc v1.75.1
 	google.golang.org/protobuf v1.36.10
 )
-
-replace github.com/ZeroZeroZerooZeroo/ChecklistApp/proto => ../proto

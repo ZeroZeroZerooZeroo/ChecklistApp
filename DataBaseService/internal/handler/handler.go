@@ -6,7 +6,8 @@ import (
 
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/internal/models"
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/internal/service"
-	pb "github.com/ZeroZeroZerooZeroo/ChecklistApp/proto/checklist/pb"
+	pb "github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice/proto/checklist/pb"
+	
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"

@@ -28,9 +28,6 @@ require (
 
 require (
 	github.com/IBM/sarama v1.46.2
-	github.com/ZeroZeroZerooZeroo/ChecklistApp/proto v0.0.0
 	github.com/joho/godotenv v1.5.1
 	google.golang.org/protobuf v1.36.10
 )
-
-replace github.com/ZeroZeroZerooZeroo/ChecklistApp/proto => ../proto
