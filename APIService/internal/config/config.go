@@ -3,15 +3,18 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	ServerHost string
-	ServerPort string
-	GRPCHost   string
-	GRPCPort   string
+	ServerHost   string
+	ServerPort   string
+	GRPCHost     string
+	GRPCPort     string
+	KafkaBrokers []string
+	KafkaTopic   string
 }
 
 func LoadConfig() *Config {
@@ -20,12 +23,14 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		ServerHost: getEnv("SERVER_HOST", "localhost"),
-		ServerPort: getEnv("SERVER_PORT", "8080"),
-		GRPCHost:   getEnv("GRPC_HOST", "localhost"),
-		GRPCPort:   getEnv("GRPC_PORT", "50051"),
+		ServerHost:   getEnv("SERVER_HOST", "localhost"),
+		ServerPort:   getEnv("SERVER_PORT", "8080"),
+		GRPCHost:     getEnv("GRPC_HOST", "localhost"),
+		GRPCPort:     getEnv("GRPC_PORT", "50051"),
+		KafkaBrokers: getEnvAsSlice("KAFKA_BROKERS", []string{"localhost:9092"}),
+		KafkaTopic:   getEnv("KAFKA_TOPIC", "user-actions"),
 	}
-	
+
 }
 
 func (c *Config) GetGRPCAddress() string {
@@ -41,4 +46,11 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func getEnvAsSlice(key string, defaultValues []string) []string {
+	if value := os.Getenv(key); value != "" {
+		return strings.Split(value, ",")
+	}
+	return defaultValues
 }
