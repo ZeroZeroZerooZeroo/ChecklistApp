@@ -37,7 +37,7 @@ func NewRedisClient(connectionString string, ttl int) (*RedisClient, error) {
 	}, nil
 }
 
-func (r *RedisClient) SerTask(ctx context.Context, key string, task interface{}) error {
+func (r *RedisClient) SetTask(ctx context.Context, key string, task interface{}) error {
 	err := r.client.Set(ctx, key, task, r.ttl).Err()
 	if err != nil {
 		return fmt.Errorf("failed to set task in Redis: %w", err)
