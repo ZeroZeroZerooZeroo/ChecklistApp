@@ -25,6 +25,7 @@ func LoadConfig() *Config {
 		GRPCHost:   getEnv("GRPC_HOST", "localhost"),
 		GRPCPort:   getEnv("GRPC_PORT", "50051"),
 	}
+	
 }
 
 func (c *Config) GetGRPCAddress() string {
