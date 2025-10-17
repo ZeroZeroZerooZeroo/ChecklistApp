@@ -3,6 +3,8 @@ module github.com/ZeroZeroZerooZeroo/ChecklistApp/databaseservice
 go 1.25.1
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	golang.org/x/net v0.41.0 // indirect
@@ -19,6 +21,7 @@ require (
 require (
 	github.com/ZeroZeroZerooZeroo/ChecklistApp/proto v0.0.0
 	github.com/joho/godotenv v1.5.1
+	github.com/redis/go-redis/v9 v9.14.0
 	google.golang.org/grpc v1.75.1
 	google.golang.org/protobuf v1.36.10
 )
