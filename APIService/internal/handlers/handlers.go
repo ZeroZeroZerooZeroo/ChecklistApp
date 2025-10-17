@@ -4,21 +4,38 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/apiservice/internal/grpc"
+	"github.com/ZeroZeroZerooZeroo/ChecklistApp/apiservice/internal/kafka"
 	"github.com/ZeroZeroZerooZeroo/ChecklistApp/apiservice/internal/models"
 )
 
 type Handlers struct {
-	grpcClient *grpc.GRPCClient
+	grpcClient    *grpc.GRPCClient
+	kafkaProducer *kafka.Producer
 }
 
-func NewHandler(grpcClient *grpc.GRPCClient) *Handlers {
+func NewHandler(grpcClient *grpc.GRPCClient, kafkaProducer *kafka.Producer) *Handlers {
 	return &Handlers{
-		grpcClient: grpcClient,
+		grpcClient:    grpcClient,
+		kafkaProducer: kafkaProducer,
 	}
+}
+
+func (h *Handlers) getUserIP(r *http.Request) string {
+	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
+		return forwarded
+	}
+
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return "unknown"
+	}
+
+	return ip
 }
 
 func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +70,13 @@ func (h *Handlers) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//Отправка события в Kafka
+	userIP:= h.getUserIP(r)
+	if err:= h.kafkaProducer.SendCreateAction(ctx,userIP,int(resp.Id),task.Title);err!=nil{
+		fmt.Printf("Failed to send Kafka event:%v\n",err)
+	}
+
+
 	// КОнвертация gRPC запроса
 	taskResponse := models.TaskResponse{
 		ID:          int(resp.Id),
@@ -80,6 +104,12 @@ func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get tasks: %v", err), http.StatusInternalServerError)
 		return
+	}
+
+	//Отправка события в Kafka
+	userIP:= h.getUserIP(r)
+	if err:= h.kafkaProducer.SendGetAction(ctx,userIP);err!=nil{
+		fmt.Printf("Failed to send Kafka event:%v\n",err)
 	}
 
 	// КОнвертация gRPC запроса
@@ -133,7 +163,13 @@ func (h *Handlers) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// временный ответ на успешную отправуц
+
+	//Отправка события в Kafka
+	userIP:= h.getUserIP(r)
+	if err:= h.kafkaProducer.SendDeleteAction(ctx,userIP,task.ID);err!=nil{
+		fmt.Printf("Failed to send Kafka event:%v\n",err)
+	}
+	
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Task deleted successfully",
@@ -170,6 +206,12 @@ func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//Отправка события в Kafka
+	userIP:= h.getUserIP(r)
+	if err:= h.kafkaProducer.SendUpdateAction(ctx,userIP,task.ID);err!=nil{
+		fmt.Printf("Failed to send Kafka event:%v\n",err)
+	}
+
 	// КОнвертация gRPC запроса
 	taskResponse := models.TaskResponse{
 		ID:          int(resp.Id),
@@ -179,8 +221,6 @@ func (h *Handlers) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:   resp.CreatedAt.AsTime(),
 		UpdatedAt:   resp.UpdatedAt.AsTime(),
 	}
-
-
 
 	// временный ответ на успешную отправуц
 	w.Header().Set("Content-Type", "application/json")
