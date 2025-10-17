@@ -16,7 +16,6 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	
 	db, err := database.NewDatabase(cfg.Database.GetDBConnectionString())
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -27,13 +26,21 @@ func main() {
 		db.Close()
 	}()
 
-	
+	redisClient, err := database.NewRedisClient(cfg.Redis.GetRedisConnectionString(), cfg.Redis.TTL)
+	if err != nil {
+		log.Fatalf("Failed to connect to Redis: %v", err)
+	}
+	defer func() {
+		log.Println("Closing Redis connection")
+		redisClient.Close()
+	}()
+
 	if err := database.RunMigrations(cfg.Database.GetMigrationConnectionString()); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 
 	repo := repository.NewRepository(db.DB)
-	serv := service.NewService(repo)
+	serv := service.NewService(repo, redisClient)
 	grpchandler := handler.NewGRPCHandler(serv)
 
 	grpcServer := grpc.NewServer()
@@ -46,6 +53,7 @@ func main() {
 
 	log.Printf("DataBaseService (gRPC server) started on port %s", cfg.GRPCPort)
 	log.Printf("Database: %s", cfg.Database.GetDBConnectionString())
+	log.Printf("Redis: %s (TTL: %d seconds)", cfg.Redis.GetRedisConnectionString(), cfg.Redis.TTL)
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
