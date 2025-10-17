@@ -37,4 +37,34 @@ func NewRedisClient(connectionString string, ttl int) (*RedisClient, error) {
 	}, nil
 }
 
+func (r *RedisClient) SerTask(ctx context.Context, key string, task interface{}) error {
+	err := r.client.Set(ctx, key, task, r.ttl).Err()
+	if err != nil {
+		return fmt.Errorf("failed to set task in Redis: %w", err)
 
+	}
+	return nil
+}
+
+func (r *RedisClient) GetTask(ctx context.Context, key string) (string, error) {
+	val, err := r.client.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return "", fmt.Errorf("key not found in Redis")
+
+	} else if err != nil {
+		return "", fmt.Errorf("failed to get task from Redis: %w", err)
+	}
+	return val, nil
+}
+
+func (r *RedisClient) DeleteTask(ctx context.Context, key string) error {
+	err := r.client.Del(ctx, key).Err()
+	if err != nil {
+		return fmt.Errorf("failed to delete task from Redis: %w", err)
+	}
+	return nil
+}
+
+func (r *RedisClient) Close() error {
+	return r.client.Close()
+}
